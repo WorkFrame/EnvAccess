@@ -6,28 +6,20 @@
   </Target>
   <PropertyGroup>
     <AssemblyRoot Condition="'$(Vishnu_Assemblies)'!=''">$(Vishnu_Assemblies)</AssemblyRoot>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>\\mausbaer5\Users\krakauer\EnvAccess.Install\</PublishUrl>
+    <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Unc</InstallFrom>
-    <UpdateEnabled>true</UpdateEnabled>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <InstallUrl>\\mausbaer5\Users\krakauer\EnvAccess.Install\</InstallUrl>
-    <UpdateUrl>\\mausbaer5\Users\krakauer\EnvAccess.Install\</UpdateUrl>
-    <SupportUrl>https:\\neteti.de</SupportUrl>
-    <ErrorReportUrl>https:\\neteti.de</ErrorReportUrl>
-    <ProductName>EnvAccess</ProductName>
-    <PublisherName>Erik Nagel</PublisherName>
-    <SuiteName>NetEti</SuiteName>
-    <ApplicationRevision>6</ApplicationRevision>
+    <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
-    <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup>
@@ -89,13 +81,13 @@
     <TargetZone>LocalIntranet</TargetZone>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
   </PropertyGroup>
   <PropertyGroup>
-    <SignManifests>true</SignManifests>
+    <SignManifests>false</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>1FAC539A29DFCDD30B8164746E261C2E0EA2A704</ManifestCertificateThumbprint>
