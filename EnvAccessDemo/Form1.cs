@@ -1,6 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using NetEti.ApplicationEnvironment;
+﻿using NetEti.ApplicationEnvironment;
 
 namespace NetEti.DemoApplications
 {

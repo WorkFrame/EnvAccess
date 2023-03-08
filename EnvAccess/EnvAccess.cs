@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using NetEti.Globals;
+using Framework.ClickOnce;
 
 namespace NetEti.ApplicationEnvironment
 {
@@ -21,7 +19,20 @@ namespace NetEti.ApplicationEnvironment
     /// </remarks>
     public class EnvAccess : IGetStringValue
     {
+        private string[]? _activationData;
         #region public members
+
+        /// <summary>
+        /// Umstellung auf .net standard 2.0.
+        /// Ersetzt die Kommandozeilen-Argumente für ClickOnce-Installationen unter .net standard 2.0.
+        /// </summary>
+        public string[]? ActivationData
+        {
+            get
+            {
+                return this._activationData;
+            }
+        }
 
         #region IGetStringValue Members
 
@@ -33,17 +44,24 @@ namespace NetEti.ApplicationEnvironment
         /// <param name="defaultValue">Das default-Ergebnis (string)</param>
         /// <returns>Der Ergebnis-String</returns>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1302:DoNotHardcodeLocaleSpecificStrings", Justification = "SENDTO is a programmer-user-literal")]
-        public string GetStringValue(string key, string defaultValue)
+        public string? GetStringValue(string key, string? defaultValue)
         {
-            string rtn = null;
+            ClickOnceInfo clickOnceInfo = new ClickOnceInfo();
+            this._activationData = clickOnceInfo.ActivationData;
+            string? rtn = null;
+            System.Reflection.Assembly? assembly;
             switch (key.ToUpper(System.Globalization.CultureInfo.CurrentCulture))
             {
                 case "ISNETWORKDEPLOYED":
-                    rtn = System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed.ToString(); break;
+                    // rtn = System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed.ToString(); break;
+                    rtn = clickOnceInfo.IsNetworkDeployed.ToString(); break;
+
                 case "CLICKONCEDATA":
-                    if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
+                    // if (System.Deployment.Application.ApplicationDeployment.IsNetworkDeployed)
+                    if (clickOnceInfo.IsNetworkDeployed)
                     {
-                        string clickOnceDataDirectory = System.Deployment.Application.ApplicationDeployment.CurrentDeployment.DataDirectory;
+                        // string clickOnceDataDirectory = System.Deployment.Application.ApplicationDeployment.CurrentDeployment.DataDirectory;
+                        string? clickOnceDataDirectory = clickOnceInfo.DataDirectory;
                         if (!String.IsNullOrEmpty(clickOnceDataDirectory))
                         {
                             rtn = clickOnceDataDirectory;
@@ -52,11 +70,32 @@ namespace NetEti.ApplicationEnvironment
                     break;
                 case "APPLICATIONROOTPATH":
                     // rtn = Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath); break;
-                    rtn = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location); break;
+                    assembly = System.Reflection.Assembly.GetEntryAssembly();
+                    if (assembly != null)
+                    {
+                        rtn = Path.GetDirectoryName(assembly.Location);
+                    }
+                    else
+                    {
+                        rtn = Directory.GetCurrentDirectory();
+                    }
+                    break;
                 case "APPLICATIONGUID":
-                    // rtn = Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath); break;
-                    var attr = System.Reflection.Assembly.GetEntryAssembly().GetCustomAttributes(typeof(GuidAttribute), true)[0];
-                    rtn = ((GuidAttribute)attr).Value;
+                    assembly = System.Reflection.Assembly.GetEntryAssembly();
+                    if (assembly != null)
+                    {
+                        // Achtung: die Guid wird aus einer zusätzlichen Datei "AssemblyInfo.cs" gelesen.
+                        // In .Net Core 7 muss die AssemblyInfo.cs manuell erzeugt werden:
+                        // Projekt - Hinzufügen/Neues Element/Allgemein/Assemblyinformationsdatei
+                        object[] attributes = assembly
+                            .GetCustomAttributes(typeof(System.Runtime.InteropServices.GuidAttribute), false);
+                        if (attributes != null && attributes.Length > 0)
+                        {
+                            rtn = ((System.Runtime.InteropServices.GuidAttribute)attributes[0]).Value;
+                        }
+                        // Hinweis: eine Lösung über eine in EnvAccessDemo.csproj eingebettete Guid
+                        //          konnte ich bisher nicht herausfinden (02.03.2023 Nagel).
+                    }
                     break;
                 case "LOCALAPPDATA":
                 case "LOCALAPPLICATIONDATA":
@@ -108,14 +147,31 @@ namespace NetEti.ApplicationEnvironment
                 case "VERSION": rtn = Environment.Version.ToString(); break;
                 case "WORKINGSET": rtn = Environment.WorkingSet.ToString(System.Globalization.CultureInfo.CurrentCulture); break;
                 case "PRODUCTNAME":
-                    // rtn = System.Windows.Forms.Application.ProductName; break;
-                    rtn = System.Reflection.Assembly.GetEntryAssembly().GetName().Name; break;
-
-                //case "PRODUCTNAME": rtn = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; break;
+                    //case "PRODUCTNAME": rtn = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name; break;
+                    assembly = System.Reflection.Assembly.GetEntryAssembly();
+                    if (assembly != null)
+                    {
+                        // rtn = System.Windows.Forms.Application.ProductName; break;
+                        rtn = assembly.GetName().Name; break;
+                    }
+                    else
+                    {
+                        rtn = null;
+                    }
+                    break;
                 case "PROGRAMVERSION":
+                    //case "PROGRAMVERSION": rtn = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); break;
                     // rtn = System.Windows.Forms.Application.ProductVersion; break;
-                    rtn = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString(); break;
-                //case "PROGRAMVERSION": rtn = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString(); break;
+                    assembly = System.Reflection.Assembly.GetEntryAssembly();
+                    if (assembly != null)
+                    {
+                        rtn = assembly.GetName()?.Version?.ToString();
+                    }
+                    else
+                    {
+                        rtn = null;
+                    }
+                    break;
                 default:
                     rtn = Environment.GetEnvironmentVariable(key); break;
             }
@@ -140,9 +196,9 @@ namespace NetEti.ApplicationEnvironment
         /// <param name="key">Der Zugriffsschlüssel (string)</param>
         /// <param name="defaultValues">Das default-Ergebnis (string[])</param>
         /// <returns>Das Ergebnis-String-Array</returns>
-        public string[] GetStringValues(string key, string[] defaultValues)
+        public string?[]? GetStringValues(string key, string?[]? defaultValues)
         {
-            string rtn = GetStringValue(key, null);
+            string? rtn = GetStringValue(key, null);
             if (rtn != null)
             {
                 return new string[] { rtn };
@@ -179,25 +235,28 @@ namespace NetEti.ApplicationEnvironment
         /// <returns>Die höchste installierte Major-Version des .Net-Frameworks als Integer</returns>
         private static int getFrameworkVersionMajor()
         {
-            RegistryKey localMaschine = Registry.LocalMachine;
-            RegistryKey registryKey = localMaschine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP");
             int maxVersion = 0;
-            int tmpVersion;
-            // string highestVersion = "0";
-            if (registryKey != null)
+            if (OperatingSystem.IsWindows())
             {
-                foreach (string valueName in registryKey.GetSubKeyNames())
+                RegistryKey localMaschine = Registry.LocalMachine;
+                RegistryKey? registryKey = localMaschine.OpenSubKey(@"SOFTWARE\Microsoft\NET Framework Setup\NDP");
+                // string highestVersion = "0";
+                if (registryKey != null)
                 {
-                    if (Int32.TryParse((valueName.Split(new char[] { '.' })[0]).Replace("v", ""), out tmpVersion) && tmpVersion >= maxVersion)
+                    int tmpVersion;
+                    foreach (string valueName in registryKey.GetSubKeyNames())
                     {
-                        maxVersion = tmpVersion;
-                        // highestVersion = valueName;
+                        if (Int32.TryParse((valueName.Split(new char[] { '.' })[0]).Replace("v", ""), out tmpVersion) && tmpVersion >= maxVersion)
+                        {
+                            maxVersion = tmpVersion;
+                            // highestVersion = valueName;
+                        }
                     }
                 }
             }
             // return highestVersion;
             return maxVersion;
-        } // private string GetFrameworkVersion()
+        }
 
         #endregion private members
 
