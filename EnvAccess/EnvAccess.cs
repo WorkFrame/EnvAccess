@@ -20,6 +20,7 @@ namespace NetEti.ApplicationEnvironment
     public class EnvAccess : IGetStringValue
     {
         private string[]? _activationData;
+
         #region public members
 
         /// <summary>
