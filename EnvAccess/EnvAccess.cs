@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using NetEti.Globals;
 using Framework.ClickOnce;
+using System.Runtime.InteropServices;
 
 namespace NetEti.ApplicationEnvironment
 {
@@ -123,6 +124,7 @@ namespace NetEti.ApplicationEnvironment
                 case "DESKTOP": rtn = Environment.GetFolderPath(Environment.SpecialFolder.Desktop); break;
                 case "DESKTOPDIRECTORY": rtn = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory); break;
                 case "FAVORITES": rtn = Environment.GetFolderPath(Environment.SpecialFolder.Favorites); break;
+                case "ISFRAMEWORKASSEMBLY": rtn = IsFrameworkAssembly().ToString(); break;
                 case "FRAMEWORKVERSIONMAJOR": rtn = EnvAccess.getFrameworkVersionMajor().ToString(System.Globalization.CultureInfo.CurrentCulture); break;
                 case "HISTORY": rtn = Environment.GetFolderPath(Environment.SpecialFolder.History); break;
                 case "INTERNETCACHE": rtn = Environment.GetFolderPath(Environment.SpecialFolder.InternetCache); break;
@@ -257,6 +259,15 @@ namespace NetEti.ApplicationEnvironment
             }
             // return highestVersion;
             return maxVersion;
+        }
+
+        /// <summary>
+        /// Liefert true, wenn das Programm ein .Net-Framework-Programm ist.
+        /// </summary>
+        /// <returns>True, wenn das Programm ein .Net-Framework-Programm ist</returns>
+        private static bool IsFrameworkAssembly()
+        {
+            return RuntimeInformation.FrameworkDescription.Contains(".NET Framework");
         }
 
         #endregion private members

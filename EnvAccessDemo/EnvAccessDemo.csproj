@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>NetEti.$(MSBuildProjectName)</AssemblyName>
     <RootNamespace>NetEti.DemoApplications</RootNamespace>
-    <Copyright>Copyright © $(Authors) 2012-2023</Copyright>
+    <Copyright>Copyright © $(Authors) 2012-$([System.DateTime]::Now.Year)</Copyright>
     <Title>$(AssemblyName) - Demoprogramm</Title>
     <Authors>Erik Nagel</Authors>
     <Company>NetEti</Company>
