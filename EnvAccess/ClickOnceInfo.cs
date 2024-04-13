@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Xml.Linq;
 
-namespace Framework.ClickOnce
+namespace NetEti.ApplicationEnvironment
 {
 	/// <summary>
 	/// This is a partial replacement for ApplicationDeployment which is not available in .NET 6

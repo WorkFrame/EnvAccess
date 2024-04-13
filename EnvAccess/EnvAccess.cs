@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using NetEti.Globals;
-using Framework.ClickOnce;
 using System.Runtime.InteropServices;
 
 namespace NetEti.ApplicationEnvironment
